@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英文 L1~L2 段考總複習互動教學系統 (皮克敏大螢幕投影版)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 向量圖示 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pikminRed: { 50: '#fef2f2', 100: '#ffe1e1', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' },
+            pikminYellow: { 50: '#fefce8', 100: '#fef9c3', 400: '#facc15', 500: '#eab308', 600: '#ca8a04' },
+            pikminBlue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+            pikminRock: { 50: '#f8fafc', 100: '#f1f5f9', 500: '#64748b', 600: '#475569', 700: '#334155' },
+            pikminWing: { 50: '#fdf2f8', 100: '#fce7f3', 500: '#ec4899', 600: '#db2777', 700: '#be185d' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .fs-standard { font-size: 1.15rem; }
+    .fs-large { font-size: 1.35rem; }
+    .fs-xlarge { font-size: 1.55rem; }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* 高亮跳轉聚焦動畫 */
+    .highlight-focus {
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 4px #ef4444 !important;
+      background-color: #fef2f2 !important;
+    }
+  </style>
+</head>
+<body id="app-root" class="fs-standard bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col font-sans transition-all duration-200">
+
+  <!-- ==================== 1. 精簡置頂控制列 ==================== -->
+  <header id="main-header" class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-slate-200 px-3 py-1.5 transition-all">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      
+      <!-- 標題與皮克敏風格色點 -->
+      <div class="flex items-center space-x-2">
+        <div class="flex -space-x-1">
+          <span class="w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+          <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 ring-2 ring-white"></span>
+          <span class="w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-white"></span>
+          <span class="w-3.5 h-3.5 rounded-full bg-slate-600 ring-2 ring-white"></span>
+          <span class="w-3.5 h-3.5 rounded-full bg-pink-500 ring-2 ring-white"></span>
+        </div>
+        <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight">英文 L1~L2 段考總複習</h1>
+        <span class="hidden md:inline-block bg-slate-800 text-white text-xs px-2 py-0.5 rounded-full font-bold">106分投影專用版</span>
+      </div>
+
+      <!-- 中間：功能切換（自測/講授、字體縮放、展開） -->
+      <div class="flex items-center space-x-1.5 text-sm">
+        <!-- 字級切換 -->
+        <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-300">
+          <button type="button" onclick="setFontSize('fs-standard')" title="標準字體" class="px-2 py-0.5 rounded font-bold hover:bg-white text-slate-700">A</button>
+          <button type="button" onclick="setFontSize('fs-large')" title="大字體" class="px-2 py-0.5 rounded font-bold hover:bg-white text-slate-700">A+</button>
+          <button type="button" onclick="setFontSize('fs-xlarge')" title="特大字體" class="px-2 py-0.5 rounded font-bold hover:bg-white text-slate-700">A++</button>
+        </div>
+
+        <!-- 模式切換 -->
+        <button type="button" id="btn-mode-teach" onclick="setAppMode('teach')" class="px-3 py-1 rounded-lg font-bold bg-emerald-600 text-white shadow-sm flex items-center space-x-1">
+          <i class="fa-solid fa-chalkboard-user"></i><span class="text-xs md:text-sm">精讀講授</span>
+        </button>
+        <button type="button" id="btn-mode-quiz" onclick="setAppMode('quiz')" class="px-3 py-1 rounded-lg font-bold bg-slate-200 text-slate-700 hover:bg-amber-500 hover:text-white transition flex items-center space-x-1">
+          <i class="fa-solid fa-gamepad"></i><span class="text-xs md:text-sm">投影自測</span>
+        </button>
+        
+        <!-- 全開/收合 -->
+        <button type="button" onclick="toggleAllDetails()" title="收合或展開所有詳解" class="px-2 py-1 rounded-lg font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300 text-xs md:text-sm">
+          <i class="fa-solid fa-arrows-up-down"></i>
+        </button>
+      </div>
+
+      <!-- 大題導覽分頁列 (Tabs) -->
+      <nav class="w-full lg:w-auto flex items-center overflow-x-auto space-x-1 py-0.5 border-t lg:border-t-0 border-slate-100">
+        <button type="button" onclick="switchTab('tab-vocab')" id="tab-btn-vocab" class="tab-btn active px-3 py-1 rounded-md font-bold text-xs md:text-sm bg-red-600 text-white whitespace-nowrap shadow-sm">
+          <i class="fa-solid fa-circle text-[10px] mr-1 text-red-300"></i>I. 文意字彙
+        </button>
+        <button type="button" onclick="switchTab('tab-cloze1')" id="tab-btn-cloze1" class="tab-btn px-3 py-1 rounded-md font-bold text-xs md:text-sm bg-slate-200 text-slate-700 hover:bg-yellow-400 hover:text-slate-900 whitespace-nowrap">
+          <i class="fa-solid fa-circle text-[10px] mr-1 text-yellow-500"></i>II-1. 人生初體驗
+        </button>
+        <button type="button" onclick="switchTab('tab-cloze2')" id="tab-btn-cloze2" class="tab-btn px-3 py-1 rounded-md font-bold text-xs md:text-sm bg-slate-200 text-slate-700 hover:bg-blue-600 hover:text-white whitespace-nowrap">
+          <i class="fa-solid fa-circle text-[10px] mr-1 text-blue-500"></i>II-2. 分手信(手機)
+        </button>
+        <button type="button" onclick="switchTab('tab-blank')" id="tab-btn-blank" class="tab-btn px-3 py-1 rounded-md font-bold text-xs md:text-sm bg-slate-200 text-slate-700 hover:bg-slate-700 hover:text-white whitespace-nowrap">
+          <i class="fa-solid fa-circle text-[10px] mr-1 text-slate-500"></i>III. 文意選填
+        </button>
+        <button type="button" onclick="switchTab('tab-trans')" id="tab-btn-trans" class="tab-btn px-3 py-1 rounded-md font-bold text-xs md:text-sm bg-slate-200 text-slate-700 hover:bg-pink-600 hover:text-white whitespace-nowrap">
+          <i class="fa-solid fa-circle text-[10px] mr-1 text-pink-500"></i>IV. 引導式翻譯
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==================== 主內容區域 ==================== -->
+  <main class="max-w-7xl mx-auto w-full p-3 md:p-6 flex-1">
+
+    <!-- ==================== TAB 1: 文意字彙 ==================== -->
+    <section id="tab-vocab" class="tab-panel space-y-4">
+      <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-4 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-xl md:text-2xl font-black text-red-700 flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full bg-red-600 inline-block"></span>
+              第一大題：文意字彙 (每題 2 分，共 20 分)
+            </h2>
+            <p class="text-slate-600 text-sm mt-0.5">評量核心：單字詞性變化、慣用語介系詞搭配 (related to / reflect on)、句意線索分析。</p>
+          </div>
+          <button type="button" onclick="speakText('Vocabulary Review. Let\'s practice the key words.')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold shadow flex items-center gap-1">
+            <i class="fa-solid fa-volume-high"></i> 聽大題導讀
+          </button>
+        </div>
+
+        <!-- 1~10 題精確跳轉導覽列 -->
+        <div class="flex items-center gap-1.5 flex-wrap bg-white/90 p-2.5 rounded-xl border border-red-200 shadow-inner">
+          <span class="text-xs font-black text-red-800 uppercase tracking-wider mr-1 flex items-center gap-1">
+            <i class="fa-solid fa-location-crosshairs text-red-600"></i> 題號直達：
+          </span>
+          <button type="button" onclick="jumpToVocab('vocab-q1')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">1</button>
+          <button type="button" onclick="jumpToVocab('vocab-q2')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">2</button>
+          <button type="button" onclick="jumpToVocab('vocab-q3')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">3</button>
+          <button type="button" onclick="jumpToVocab('vocab-q4')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">4</button>
+          <button type="button" onclick="jumpToVocab('vocab-q5')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">5</button>
+          <button type="button" onclick="jumpToVocab('vocab-q6')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">6</button>
+          <button type="button" onclick="jumpToVocab('vocab-q7')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">7</button>
+          <button type="button" onclick="jumpToVocab('vocab-q8')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">8</button>
+          <button type="button" onclick="jumpToVocab('vocab-q9')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">9</button>
+          <button type="button" onclick="jumpToVocab('vocab-q10')" class="w-9 h-9 rounded-lg bg-red-100 hover:bg-red-600 hover:text-white text-red-700 font-black text-base transition shadow-sm active:scale-95">10</button>
+        </div>
+      </div>
+
+      <!-- 10 題卡片列表 -->
+      <div class="space-y-4" id="vocab-cards-container">
+        
+        <!-- Q1 -->
+        <div id="vocab-q1" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">1</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                Studies have shown that skin cancer is closely 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">r______ed</span> 
+                to prolonged exposure to sunlight.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('Studies have shown that skin cancer is closely related to prolonged exposure to sunlight.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">related</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">adj. 相關的</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 句中出現 is closely ______ to，考固定慣用語 be related to（與……息息相關）。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 研究顯示，皮膚癌與長時間暴露在陽光下有密切關聯。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q2 -->
+        <div id="vocab-q2" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">2</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                During the harvest festival, people of this tribe wore 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">t______l</span> 
+                costumes, danced to their tribal music, and enjoyed local foods.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('During the harvest festival, people of this tribe wore traditional costumes, danced to their tribal music, and enjoyed local foods.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">traditional</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">adj. 傳統的</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 修飾後方名詞 costumes（服裝），搭配部落慶典與音樂情境，填入形容詞 traditional。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 在豐收祭典期間，該部落族人身穿傳統服飾，伴隨部落音樂起舞，並享用在地美食。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q3 -->
+        <div id="vocab-q3" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">3</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                Alex’s manager asked him to spend some time 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">r______ting</span> 
+                on how he could improve his performance.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('Alex\'s manager asked him to spend some time reflecting on how he could improve his performance.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">reflecting</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">V-ing 深思、反省</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 句型 spend time + V-ing，搭配介系詞 on，使用片語 reflect on（反省、思考）。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 艾力克斯的主管要求他花點時間深思該如何改善自己的工作表現。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q4 -->
+        <div id="vocab-q4" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">4</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                The Lin family was 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">f______te</span> 
+                to have survived the five-car pile-up on the highway. They were really lucky.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('The Lin family was fortunate to have survived the five-car pile-up on the highway. They were really lucky.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">fortunate</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">adj. 幸運的</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 後句明確提示 They were really lucky，lucky 的同義字即為 fortunate。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 林家人在高速公路上的五車連環撞車禍中生還，十分幸運。他們真的是命大。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q5 -->
+        <div id="vocab-q5" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">5</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">Th______t</span> 
+                the dinner party, John felt sick and kept making excuses to go to the bathroom.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('Throughout the dinner party, John felt sick and kept making excuses to go to the bathroom.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">Throughout</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">prep. 自始至終、在整個期間</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 置於句首修飾整段時間過程（the dinner party），首字母須大寫。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 在整場晚宴過程中，約翰都感到身體不適，不斷找藉口跑洗手間。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q6 -->
+        <div id="vocab-q6" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">6</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                The study shows that a falling rock caused the 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">ac______t</span> 
+                on the mountain road.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('The study shows that a falling rock caused the accident on the mountain road.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">accident</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">n. 意外、事故</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 動詞 caused（造成）後方接名詞受詞，由落石所導致的事故填 accident。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 調查顯示，一顆落石引發了該山路上的這起意外事故。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q7 -->
+        <div id="vocab-q7" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">7</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                Mary was 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">di______ted</span> 
+                when she learned that she only won second place in the speech contest.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('Mary was disappointed when she learned that she only won second place in the speech contest.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">disappointed</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">adj. 感到失望的</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 修飾人的情緒（Mary was...），從「只拿到第二名（only won second place）」可知情緒為失望。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 當瑪麗得知自己在演講比賽中僅獲得第二名時，感到非常失望。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q8 -->
+        <div id="vocab-q8" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">8</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                This musician finds 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">i______n</span> 
+                in his daily life. Ideas often come from the most unexpected places.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('This musician finds inspiration in his daily life. Ideas often come from the most unexpected places.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">inspiration</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">n. 靈感</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 後句 Ideas often come... 明確提示點子與創作的「靈感」（find inspiration in）。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 這位音樂家在日常生活中尋找靈感。創作點子往往來自最意想不到的地方。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q9 -->
+        <div id="vocab-q9" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">9</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                Jessica smiled with 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">s______n</span> 
+                as she watched her son perform on stage.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('Jessica smiled with satisfaction as she watched her son perform on stage.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">satisfaction</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">n. 滿意、欣慰</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 介系詞 with 加上抽象名詞表示狀態，with satisfaction 意為「欣慰地、滿意地」。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 潔西卡看著兒子在舞台上表演，露出了欣慰滿意的笑容。</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Q10 -->
+        <div id="vocab-q10" class="bg-white border-2 border-red-100 rounded-2xl p-5 shadow-sm hover:border-red-300 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shrink-0">10</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-800 leading-relaxed">
+                Zoe managed to 
+                <span class="vocab-blank px-2 py-0.5 bg-red-100 text-red-700 rounded-md font-mono font-bold">________</span> 
+                <span class="text-xs text-slate-400 font-mono">(memory)</span> the whole article within an hour.[cite: 1]
+              </p>
+            </div>
+            <button type="button" onclick="speakText('Zoe managed to memorize the whole article within an hour.')" class="text-slate-400 hover:text-red-600 text-lg p-1">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <details open class="mt-3 bg-red-50/60 rounded-xl p-3 border border-red-100">
+            <summary class="cursor-pointer font-bold text-red-700 select-none text-sm flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1"></i> 作答關鍵與全句翻譯</span>
+              <span class="text-xs text-red-500 font-normal">點擊收合/展開</span>
+            </summary>
+            <div class="mt-2 space-y-1.5 text-base border-t border-red-200/60 pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">正確答案：</span>
+                <span class="text-xl font-black text-red-600 font-mono">memorize</span>
+                <span class="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">V. 背誦、記住</span>
+              </div>
+              <p><strong class="text-slate-700">[作答線索]</strong> 句型 manage to + 原形動詞，名詞 memory 轉動詞型態為 memorize。</p>
+              <p><strong class="text-slate-700">[全句翻譯]</strong> 柔伊設法在一小時之內把整篇文章背了下來。</p>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: 克漏字篇章一 (人生初體驗) ==================== -->
+    <section id="tab-cloze1" class="tab-panel hidden space-y-4">
+      <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-xl md:text-2xl font-black text-amber-800 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-yellow-400 inline-block ring-2 ring-amber-600"></span>
+            綜合測驗篇章一：人生初體驗 (第 11～20 題)
+          </h2>
+          <p class="text-slate-600 text-sm">課文主旨：探索學生生活中的各種「第一次」，以及失敗帶來的成長啟發。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="toggleArticleLang('cloze1')" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black rounded-xl text-sm shadow flex items-center gap-2 transition">
+            <i class="fa-solid fa-language text-lg"></i>
+            <span id="cloze1-lang-btn-text">切換中文翻譯</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 左欄：課文閱讀區 -->
+        <div class="lg:col-span-6 bg-white border-2 border-yellow-200 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between border-b pb-2 mb-3 text-slate-500 text-sm font-bold">
+            <span id="cloze1-box-title"><i class="fa-solid fa-book-open mr-1 text-amber-500"></i> 英文原篇閱讀 (點擊標籤對照題卡)</span>
+            <button type="button" onclick="speakText(document.getElementById('cloze1-en-box').innerText)" class="hover:text-amber-600">
+              <i class="fa-solid fa-volume-high"></i> 全文朗讀
+            </button>
+          </div>
+
+          <!-- 英文文章 -->
+          <div id="cloze1-en-box" class="space-y-4 leading-loose text-slate-800">
+            <p>
+              We all have experienced firsts in life. These 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q11')">11. memorable</button>
+              events bring up various feelings in us. They can make us happy, sad, or anything in between, and they are important for our growth as people. Let’s take a quick look at 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q12')">12. a few</button>
+              different examples from some students’ lives.[cite: 1]
+            </p>
+            <p>
+              Robbie took his first online class about three years ago. He 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q13')">13. recalled</button>
+              some interesting experiences, such as using online tools and taking classes in his pajamas. However, afterward, Robbie felt 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q14')">14. that</button>
+              online lessons weren’t for him. Being able to see and talk to his classmates 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q15')">15. in person</button>
+              was too important to him.[cite: 1]
+            </p>
+            <p>
+              Claire also shared a school first, but her story is about a first 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q16')">16. failure</button>.
+              In a group project, Claire was the speaker for her group. The project was not very important to her, so she failed to attend several meetings. 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q17')">17. Since</button>
+              she was so unprepared, she did a very poor job of speaking and made a fool of herself in front of her classmates. On the positive side, Claire learned from this experience, and she 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q18')">18. takes ... seriously</button>
+              school more seriously now.[cite: 1]
+            </p>
+            <p>
+              Our final story comes from Nancy, and it is about her first trip to another country. She visited Seoul, South Korea. In this city, she ate some delicious Korean food and explored the busy streets. She even wore some historical Korean clothing so that she 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q19')">19. looked like</button>
+              a person from Korean history.[cite: 1]
+            </p>
+            <p>
+              Whether these moments are good, embarrassing, or mixed, we never forget the feeling of experiencing something 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-yellow-200 text-yellow-900 font-black font-mono border border-yellow-400 hover:bg-yellow-300" onclick="scrollToCard('cloze-q20')">20. for the first time</button>.
+              Firsts help to make us who we are.[cite: 1]
+            </p>
+          </div>
+
+          <!-- 中文翻譯 (預設隱藏) -->
+          <div id="cloze1-zh-box" class="hidden space-y-4 leading-loose text-slate-800 bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+            <p>我們在生命中都有過許多「第一次」的經歷。這些<strong>【11. 難忘的】</strong>事件在我們內心喚起各種感受。它們能使我們開心、悲傷，或百感交集，並且對我們身為一個人的成長至關重要。讓我們迅速看一下來自幾位學生生活中的<strong>【12. 幾個】</strong>不同例子。</p>
+            <p>羅比大約在三年前上了人生第一堂線上課。他<strong>【13. 回憶起】</strong>一些有趣的經驗，例如使用線上工具以及穿著睡衣上課。然而在那之後，羅比覺得線上課程並不適合他。能夠<strong>【15. 親自、當面】</strong>見到同學並與他們交談，對他而言實在太重要了。</p>
+            <p>克萊兒也分享了一個學校裡的第一次，但她的故事卻是關於第一次的<strong>【16. 失敗】</strong>。在一次分組報告中，克萊兒擔任小組的講者。這項報告對她來說不太重要，因此她好幾次會議都沒有出席。<strong>【17. 因為】</strong>她如此缺乏準備，她在演說時表現得非常糟，並在全班同學面前出了洋相。從好處想，克萊兒從這次經驗學到了教訓，現在她更<strong>【18. 認真對待】</strong>學校課業。</p>
+            <p>我們的最後一個故事來自南西，是有關她第一次的出國旅行。她造訪了南韓首爾。在這座城市裡，她品嚐了美味的韓國料理，並探索了熱鬧繁忙的街道。她甚至穿上傳統的韓國韓服，好讓自己<strong>【19. 看起來像】</strong>來自韓國古代歷史的人。</p>
+            <p>不論這些時刻是美好的、尷尬的、或是喜憂參半的，我們永遠都不會忘記<strong>【20. 第一次】</strong>經歷某件事時的感受。「第一次」形塑了今天的我們。</p>
+          </div>
+        </div>
+
+        <!-- 右欄：題目與三維度解析區 -->
+        <div class="lg:col-span-6 space-y-4 max-h-[750px] overflow-y-auto pr-1 custom-scrollbar">
+          
+          <!-- 11 -->
+          <div id="cloze-q11" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 11 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(C)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) foreign (外國的)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) nervous (緊張的)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(C) memorable (難忘的) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) perfect (完美的)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 呼應前句 experienced firsts in life 以及後文 never forget，初體驗往往非常「難忘」。</p>
+              <p><strong>[核心考點]</strong> 形容詞詞義辨析。memorable（值得紀念的、難忘的）最符合人生初體驗之語境。</p>
+            </div>
+          </div>
+
+          <!-- 12 -->
+          <div id="cloze-q12" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 12 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(A)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(A) a few (幾個；修飾可數) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) a little (一點；修飾不可數)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) little (幾乎沒有；不可數)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) much (許多；不可數)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 空格後為可數複數名詞 different examples，須選修飾可數名詞的數量詞。</p>
+              <p><strong>[核心考點]</strong> 數量詞修飾。a few + 可數複數名詞（Robbie, Claire, Nancy 三個例子）。</p>
+            </div>
+          </div>
+
+          <!-- 13 -->
+          <div id="cloze-q13" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 13 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(B)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) visited (參觀、拜訪)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(B) recalled (回憶起) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) reminded (提醒)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) prepared (準備)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 敘述三年前的網課，後面列舉穿睡衣上課等點滴，故為「回憶起（recalled）」。</p>
+              <p><strong>[核心考點]</strong> 動詞用法辨析。remind 通常用於 remind sb of sth，此處受詞直接為 experiences，故用 recall。</p>
+            </div>
+          </div>
+
+          <!-- 14 -->
+          <div id="cloze-q14" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 14 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(A)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(A) that (引導名詞子句) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) which (關係代名詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) what (複合關係代名詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) when (時間副詞子句)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 動詞 felt 後面接結構完整的名詞子句 online lessons weren’t for him。</p>
+              <p><strong>[核心考點]</strong> 名詞子句連接詞 that。that 引導完整子句作受詞，不具實質語意且可省略。</p>
+            </div>
+          </div>
+
+          <!-- 15 -->
+          <div id="cloze-q15" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 15 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(C)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) in time (及時)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) in secret (祕密地)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(C) in person (親自、面對面) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) in short (總而言之)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 與前文 online lessons（線上課）對比，強調能實體與同學「見面交談」。</p>
+              <p><strong>[核心考點]</strong> 介系詞片語。in person 表「本人親自、當面」。</p>
+            </div>
+          </div>
+
+          <!-- 16 -->
+          <div id="cloze-q16" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 16 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(D)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) treat (請客、款待)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) interview (面試、採訪)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) reflection (反思、倒影)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(D) failure (失敗) [正解]</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 轉折詞 but 提示負面經歷，後文提及 made a fool of herself 與 That failure。</p>
+              <p><strong>[核心考點]</strong> 名詞詞義與全篇前後文語意呼應。</p>
+            </div>
+          </div>
+
+          <!-- 17 -->
+          <div id="cloze-q17" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 17 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(C)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) Although (雖然)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) Once (一旦)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(C) Since (因為、既然) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) Unless (除非)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 前後子句具因果關係：「缺乏準備（原因）」造成「演說表現極差出醜（結果）」。</p>
+              <p><strong>[核心考點]</strong> 副詞子句連接詞。Since 在此表「因為（Because）」。</p>
+            </div>
+          </div>
+
+          <!-- 18 -->
+          <div id="cloze-q18" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 18 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(B)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) lets; down (使…失望)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(B) takes; seriously (認真看待…) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) dresses; up (精心裝扮)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) puts; first (將…置於首位)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 前句提到 learned from this experience，說明對課業變得更加認真。</p>
+              <p><strong>[核心考點]</strong> 動詞片語 take sth seriously（認真對待某事）。</p>
+            </div>
+          </div>
+
+          <!-- 19 -->
+          <div id="cloze-q19" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 19 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(A)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(A) looked like (+ 名詞) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) looked (+ 形容詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) looked as (文法不符)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) looked at (注視)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 空格後為名詞片語 a person from Korean history。</p>
+              <p><strong>[核心考點]</strong> 連綴動詞用法。look + adj.（看起來…）；look like + N（看起來像…）。</p>
+            </div>
+          </div>
+
+          <!-- 20 -->
+          <div id="cloze-q20" class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg text-base">第 20 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(D)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) at the same time (同時)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) in the beginning (起初)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) in the end (最後)</div>
+              <div class="p-1.5 rounded bg-amber-100 font-bold border-amber-300 border text-amber-900">(D) for the first time (第一次) [正解]</div>
+            </div>
+            <div class="text-sm space-y-1 bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+              <p><strong>[作答線索]</strong> 呼應全文總結 Firsts help to make us who we are，總結初次體驗之感受。</p>
+              <p><strong>[核心考點]</strong> 副詞片語。for the first time 意為「首次、初次」。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: 克漏字篇章二 (致手機的分手信) ==================== -->
+    <section id="tab-cloze2" class="tab-panel hidden space-y-4">
+      <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-xl md:text-2xl font-black text-blue-900 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-blue-500 inline-block ring-2 ring-blue-700"></span>
+            綜合測驗篇章二：致手機的分手信 (第 21～30 題)
+          </h2>
+          <p class="text-slate-600 text-sm">課文特色：擬人化手法，以情侶分手信的形式寫出對智慧型手機的戒斷與反省。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="toggleArticleLang('cloze2')" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-sm shadow flex items-center gap-2 transition">
+            <i class="fa-solid fa-language text-lg"></i>
+            <span id="cloze2-lang-btn-text">切換中文翻譯</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 左欄：課文閱讀區 -->
+        <div class="lg:col-span-6 bg-white border-2 border-blue-200 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between border-b pb-2 mb-3 text-slate-500 text-sm font-bold">
+            <span id="cloze2-box-title"><i class="fa-solid fa-envelope-open-text mr-1 text-blue-600"></i> 信件原文閱讀 (點擊標籤對照題卡)</span>
+            <button type="button" onclick="speakText(document.getElementById('cloze2-en-box').innerText)" class="hover:text-blue-600">
+              <i class="fa-solid fa-volume-high"></i> 英文朗讀
+            </button>
+          </div>
+
+          <!-- 英文信件 -->
+          <div id="cloze2-en-box" class="space-y-3 leading-loose text-slate-800 font-normal">
+            <p class="font-serif italic font-bold text-slate-700 text-xl">Dear John,</p>
+            <p>
+              This isn’t easy to say, but I’m leaving you. Our relationship has been good, but I’m 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q21')">21. afraid</button>
+              it’s over. 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q22')">22. Leaving you</button>
+              breaks my heart because we’ve had such good times together. When you’re around, I always have 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q23')">23. something</button>
+              to do. I can ask you anything, and you help me 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q24')">24. find</button>
+              the answer. You’ve also introduced me to so many different things.[cite: 1]
+            </p>
+            <p>
+              Actually, things have been totally different 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q25')">25. since</button>
+              you entered my life. After I wake up, I check you 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q26')">26. again and again</button>
+              throughout the day. Maybe this 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q27')">27. sounds</button>
+              romantic, but I can’t focus at school, and my grades are getting worse. Also, I always look at you and ignore everyone else. When my friends try to chat with me, I am too busy 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q28')">28. paying</button>
+              attention to you. What if they stop 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q29')">29. inviting</button>
+              me out? I love that you are always by my side, but I seldom speak to my family.[cite: 1]
+            </p>
+            <p>
+              Please don’t take this personally. You’re wonderful, and I will miss you! But now I need to focus on my studies and spend more time 
+              <button type="button" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-black font-mono border border-blue-300 hover:bg-blue-200" onclick="scrollToCard('cloze2-q30')">30. with</button>
+              my friends. I hope you understand. For the last time, goodbye![cite: 1]
+            </p>
+            <p class="font-serif italic font-bold text-slate-700">Sincerely,<br>Sally[cite: 1]</p>
+          </div>
+
+          <!-- 中文翻譯 (預設隱藏) -->
+          <div id="cloze2-zh-box" class="hidden space-y-3 leading-loose text-slate-800 bg-blue-50/50 p-4 rounded-xl border border-blue-200">
+            <p class="font-serif font-bold text-slate-800 text-xl">親愛的約翰：</p>
+            <p>這件事很難開口，但我必須離開你了。我們的關係一直很好，但我<strong>【21. 恐怕/遺憾】</strong>我們已經結束了。<strong>【22. 離開你】</strong>讓我心碎，因為我們曾一起度過那麼多美好時光。只要有你在身邊，我總是有<strong>【23. 事情】</strong>可做。我可以問你任何問題，而你會幫我<strong>【24. 找到】</strong>答案。你也帶我認識了好多新鮮事物。</p>
+            <p>事實上，<strong>【25. 自從】</strong>你進入我的生活以來，一切都徹底變了。我醒來之後，一整天都在<strong>【26. 一次又一次地】</strong>查看你。也許這<strong>【27. 聽起來】</strong>很浪漫，但我卻無法在學校專心，我的成績也越來越差。而且，我總是注視著你，忽略身邊的所有人。當朋友試著跟我聊天時，我卻忙著把心思<strong>【28. 投注】</strong>在你身上。如果他們不再<strong>【29. 邀請】</strong>我出去該怎麼辦？我喜歡你總是在我身旁，但我現在卻很少跟家人說話。</p>
+            <p>請不要覺得我是在針對你。你真的很棒，我也會想念你的！但現在我必須專注於課業，並花更多時間<strong>【30. 和…相處】</strong>我的朋友們。希望你能體諒。最後一次，再見了！</p>
+            <p class="font-serif font-bold text-slate-800">莎莉 筆</p>
+          </div>
+        </div>
+
+        <!-- 右欄：題目與詳解區 -->
+        <div class="lg:col-span-6 space-y-4 max-h-[750px] overflow-y-auto pr-1 custom-scrollbar">
+
+          <!-- 21 -->
+          <div id="cloze2-q21" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 21 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(C)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) scared (恐懼的；常接 of)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) terrified (嚇壞的)</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(C) afraid (恐怕、抱歉遺憾) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) frightened (受驚嚇的)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 後接 that 省略之名詞子句 it's over，口語委婉語氣 I'm afraid (that)... 表「恐怕……」。</p>
+              <p><strong>[核心考點]</strong> 形容詞句型。be afraid that + S + V 委婉陳述令人遺憾的事實。</p>
+            </div>
+          </div>
+
+          <!-- 22 -->
+          <div id="cloze2-q22" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 22 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(B)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) Although leaving you</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(B) Leaving you (動名詞當主詞) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) Left you (過去分詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) I will leave you</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 後方緊接著單數及物動詞 breaks my heart，空格須充當主要子句的主詞。</p>
+              <p><strong>[核心考點]</strong> 動名詞當主詞（V-ing as Subject），視為單數，動詞使用 breaks。</p>
+            </div>
+          </div>
+
+          <!-- 23 -->
+          <div id="cloze2-q23" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 23 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(D)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) a lot of (修飾名詞，不可單獨作受詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) little (幾乎沒有)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) anything (用於否定或疑問)</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(D) something (某事、有些事) [正解]</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 肯定句 I always have ______ to do，表示手機總是能提供事情來做。</p>
+              <p><strong>[核心考點]</strong> 不定代名詞用法。have something to do（有事情可做）。</p>
+            </div>
+          </div>
+
+          <!-- 24 -->
+          <div id="cloze2-q24" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 24 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(A)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(A) find (原形動詞) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) to finding (文法錯誤)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) finds (單數動詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) found (過去式)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 前方動詞 help：help sb (to) + 原形動詞。</p>
+              <p><strong>[核心考點]</strong> help 的受詞補語用法。help me (to) find，省略 to 後接原形動詞 find。</p>
+            </div>
+          </div>
+
+          <!-- 25 -->
+          <div id="cloze2-q25" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 25 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(C)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) although (雖然)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) unless (除非)</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(C) since (自從) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) if (如果)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 主要子句為現在完成式 have been totally different，配合過去時間點子句 you entered my life。</p>
+              <p><strong>[核心考點]</strong> 連接詞 since + 過去式子句，主要子句搭配現在完成式。</p>
+            </div>
+          </div>
+
+          <!-- 26 -->
+          <div id="cloze2-q26" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 26 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(B)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) less and less (越來越少)</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(B) again and again (一再地) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) for a while (一陣子)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) all of a sudden (突然)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 由 throughout the day（一整天）及手機成癮情境，表示「反覆頻繁地查看」。</p>
+              <p><strong>[核心考點]</strong> 副詞片語 again and again（一再、屢次）。</p>
+            </div>
+          </div>
+
+          <!-- 27 -->
+          <div id="cloze2-q27" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 27 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(D)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) hears (及物動詞，聽見)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) brings (帶來)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) allows (允許)</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(D) sounds (連綴動詞，聽起來) [正解]</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 後接形容詞 romantic 作為主詞補語。</p>
+              <p><strong>[核心考點]</strong> 感官連綴動詞 sound + adj.（聽起來……）。主詞 this 為單數，動詞加 s。</p>
+            </div>
+          </div>
+
+          <!-- 28 -->
+          <div id="cloze2-q28" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 28 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(A)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(A) paying (V-ing) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) to pay (不定詞)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) not pay</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) for paying</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 前方為句型 be too busy + V-ing（忙於做某事而不能……）。</p>
+              <p><strong>[核心考點]</strong> 固定慣用語 be busy (in) paying attention to...</p>
+            </div>
+          </div>
+
+          <!-- 29 -->
+          <div id="cloze2-q29" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 29 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(C)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) to invite (停下手邊事去邀請)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(B) and invite</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(C) inviting (停止邀請) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) invite</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 作者擔心朋友不再邀約她出門。</p>
+              <p><strong>[核心考點]</strong> 動詞受詞差異。stop + V-ing 表「停止正在進行的行為」；stop + to V 表「停下來去做另一件事」。</p>
+            </div>
+          </div>
+
+          <!-- 30 -->
+          <div id="cloze2-q30" class="bg-white border border-blue-200 rounded-xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-lg text-base">第 30 題</span>
+              <span class="text-sm font-bold text-slate-500">標準答案：(B)</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div class="p-1.5 rounded bg-slate-50 border">(A) as (作為)</div>
+              <div class="p-1.5 rounded bg-blue-100 font-bold border-blue-300 border text-blue-900">(B) with (與…相處) [正解]</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(C) for (為了)</div>
+              <div class="p-1.5 rounded bg-slate-50 border">(D) to (向)</div>
+            </div>
+            <div class="text-sm space-y-1 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+              <p><strong>[作答線索]</strong> 句型 spend time with sb（花時間與某人相處）。</p>
+              <p><strong>[核心考點]</strong> spend 用法：spend time on sth / spend time with sb / spend time (in) V-ing。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: 文意選填 ==================== -->
+    <section id="tab-blank" class="tab-panel hidden space-y-4">
+      <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-xl md:text-2xl font-black text-slate-800 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-slate-600 inline-block ring-2 ring-slate-800"></span>
+            第三大題：文意選填 (每題 2 分，共 20 分)
+          </h2>
+          <p class="text-slate-600 text-sm">解題策略：先標註 (A)～(J) 詞性，再依句子空格位置推敲文法詞性與前後語意。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="toggleArticleLang('blank')" class="px-3.5 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-black rounded-xl text-sm shadow flex items-center gap-2 transition">
+            <i class="fa-solid fa-language text-lg"></i>
+            <span id="blank-lang-btn-text">切換中文翻譯</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 選項單字庫 (A~J) 詞性表 -->
+      <div class="bg-white border-2 border-slate-300 rounded-2xl p-4 shadow-sm">
+        <h3 class="font-black text-slate-700 text-sm mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-boxes-stacked text-slate-500"></i> 單字庫詞性分析表 (A～J)
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(A) presentation</strong> <span class="text-xs text-blue-600 block">[n. 簡報發表]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(B) attention</strong> <span class="text-xs text-blue-600 block">[n. 注意力]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(C) embarrassed</strong> <span class="text-xs text-amber-600 block">[adj. 尷尬的]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(D) reflected</strong> <span class="text-xs text-red-600 block">[v-ed 反思]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(E) let down</strong> <span class="text-xs text-emerald-600 block">[v. 使…失望]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(F) throughout</strong> <span class="text-xs text-purple-600 block">[prep. 貫穿、在…期間]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(G) accidentally</strong> <span class="text-xs text-indigo-600 block">[adv. 不小心地]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(H) ignored</strong> <span class="text-xs text-red-600 block">[v-ed 忽略]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(I) in person</strong> <span class="text-xs text-teal-600 block">[adv. 片語 親自]</span></div>
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200"><strong>(J) refreshing</strong> <span class="text-xs text-orange-600 block">[v-ing 刷新(動態)]</span></div>
+        </div>
+      </div>
+
+      <!-- 文章與下拉選單區 -->
+      <div class="bg-white border-2 border-slate-300 rounded-2xl p-6 shadow-sm leading-loose">
+        <div class="flex items-center justify-between border-b pb-2 mb-4 text-slate-500 text-sm font-bold">
+          <span id="blank-box-title"><i class="fa-solid fa-file-pen text-slate-600 mr-1"></i> 篇章填空 (投影自測模式下可直接在空格使用下拉選單做答)</span>
+          <span id="blank-score-badge" class="hidden px-2.5 py-0.5 rounded-full bg-slate-800 text-white text-xs font-bold">自測進行中</span>
+        </div>
+
+        <!-- 英文原文區 -->
+        <div id="blank-en-box" class="space-y-5 text-slate-800">
+          <p>
+            For many teenagers, the first weeks of high school are full of new experiences. For Kevin, one of the most memorable moments came during his first group project. His team had to give a science 
+            <span class="blank-slot" data-q="27" data-ans="A" data-word="presentation"></span>
+            in front of the class. At first, Kevin was excited, but he soon became distracted by his smartphone. 
+            <span class="blank-slot" data-q="28" data-ans="F" data-word="Throughout"></span>
+            each meeting, he kept checking messages, 
+            <span class="blank-slot" data-q="29" data-ans="J" data-word="refreshing"></span>
+            social media, and turning to his phone whenever the discussion became difficult.[cite: 1]
+          </p>
+
+          <p>
+            One afternoon, Kevin 
+            <span class="blank-slot" data-q="30" data-ans="G" data-word="accidentally"></span>
+            sent a silly sticker to the class group instead of his best friend. Everyone laughed, and he felt deeply 
+            <span class="blank-slot" data-q="31" data-ans="C" data-word="embarrassed"></span>. 
+            Worse still, because he had not prepared his part carefully, he forgot several key points on presentation day. His teammates had worked hard, and Kevin knew this mistake would 
+            <span class="blank-slot" data-q="32" data-ans="E" data-word="let down"></span>
+            his teammates.[cite: 1]
+          </p>
+
+          <p>
+            That failure became a turning point. Kevin 
+            <span class="blank-slot" data-q="33" data-ans="D" data-word="reflected"></span>
+            on what had gone wrong and realized that his phone was taking too much of his 
+            <span class="blank-slot" data-q="34" data-ans="B" data-word="attention"></span>. 
+            He often 
+            <span class="blank-slot" data-q="35" data-ans="H" data-word="ignored"></span>
+            the people beside him while responding to messages from people online. As a result, it was becoming harder for him to build a close relationship with his classmates.[cite: 1]
+          </p>
+
+          <p>
+            Kevin decided to change. During group work, he put his phone in his bag and tried to communicate with his teammates 
+            <span class="blank-slot" data-q="36" data-ans="I" data-word="in person"></span>, 
+            listening carefully to what others were saying. Gradually, he became more focused and dependable. The experience was embarrassing, but it taught him an important lesson: technology can connect us, but real growth often begins when we learn when to put it down.[cite: 1]
+          </p>
+        </div>
+
+        <!-- 中文翻譯區 (預設隱藏) -->
+        <div id="blank-zh-box" class="hidden space-y-4 text-slate-800 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+          <p>對許多青少年來說，高中的最初幾週充滿了嶄新的體驗。對凱文而言，最難忘的時刻之一發生在他的第一次分組專題。他的小組必須在全班面前進行一場科學<strong>【(27) 簡報 (presentation)】</strong>。起初凱文很興奮，但他很快就被智慧型手機分了心。在每一次開會<strong>【(28) 期間 (Throughout)】</strong>，他不斷查看訊息、<strong>【(29) 刷新 (refreshing)】</strong>社群媒體，且每當討論遇到瓶頸時就轉向滑手機。</p>
+          <p>某天下午，凱文<strong>【(30) 不小心地 (accidentally)】</strong>把一張搞笑貼圖傳到了班級大群組，而不是傳給他的摯友。大家都笑了，而他感到無比<strong>【(31) 尷尬丟臉 (embarrassed)】</strong>。更糟的是，因為他沒有認真準備自己負責的部分，在報告當天他忘記了幾個關鍵重點。他的組員們都很努力，凱文知道這個失誤會<strong>【(32) 使……失望 (let down)】</strong>他的組員。</p>
+          <p>那次失敗成了一個轉捩點。凱文<strong>【(33) 反思 (reflected)】</strong>了究竟哪裡出錯，並意識到手機佔用了他太多的<strong>【(34) 注意力 (attention)】</strong>。他經常在回覆網友訊息時<strong>【(35) 忽略了 (ignored)】</strong>身邊的人。結果，他變得越來越難和同學建立親密關係。</p>
+          <p>凱文決定做出改變。在小組合作期間，他把手機收進書包，並試著與組員們<strong>【(36) 當面親自 (in person)】</strong>溝通，仔細聆聽別人說的話。漸漸地，他變得更專注、更可靠。這次經歷雖然令人尷尬，但也教會了他重要的一課：科技能連結彼此，但真正的成長往往始於我們學會何時放下它。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: 引導式翻譯 ==================== -->
+    <section id="tab-trans" class="tab-panel hidden space-y-4">
+      <div class="bg-pink-50 border-2 border-pink-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-xl md:text-2xl font-black text-pink-900 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-pink-500 inline-block ring-2 ring-pink-700"></span>
+            第四大題：引導式翻譯填空 (一格 1 分，共 26 分)
+          </h2>
+          <p class="text-slate-600 text-sm">投影優化：答案英文字體放大加粗，搭配時態變化提示與重要句型公式。</p>
+        </div>
+        <button type="button" onclick="speakText('Guided Translation Practice. Watch the verb tenses carefully.')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-sm font-bold shadow flex items-center gap-1">
+          <i class="fa-solid fa-volume-high"></i> 英文提示語音
+        </button>
+      </div>
+
+      <div class="space-y-4">
+
+        <!-- 37 題 -->
+        <div class="bg-white border-2 border-pink-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-pink-600 text-white font-black rounded-lg text-sm">第 37 題</span>
+            <p class="text-lg font-bold text-slate-800">第一次在全班面前報告時，我非常緊張，但我提醒自己要認真看待這項任務。[cite: 1]</p>
+          </div>
+          <div class="p-4 bg-pink-50/50 rounded-xl text-lg font-mono text-slate-800 border border-pink-100 leading-loose">
+            When I gave a presentation in front of the whole class for the first time, I was very nervous, but I 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[1]</span> myself to 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[2]</span> the task 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[3]</span>.[cite: 1]
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm flex flex-col justify-between">
+              <span class="text-xs text-pink-500 font-black tracking-wider uppercase">空格 [1] (動詞過去式)</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono my-1 tracking-wide">reminded</span>
+              <span class="text-xs text-slate-500">remind sb to V (提醒某人做…)</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm flex flex-col justify-between">
+              <span class="text-xs text-pink-500 font-black tracking-wider uppercase">空格 [2] (原形動詞)</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono my-1 tracking-wide">take</span>
+              <span class="text-xs text-slate-500">片語 take sth seriously</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm flex flex-col justify-between">
+              <span class="text-xs text-pink-500 font-black tracking-wider uppercase">空格 [3] (副詞)</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono my-1 tracking-wide">seriously</span>
+              <span class="text-xs text-slate-500">副詞修飾動詞 take</span>
+            </div>
+          </div>
+          <div class="text-sm bg-pink-100/50 p-2.5 rounded-lg text-pink-950 font-medium">
+            [句型公式] remind oneself to + V；take + N + seriously（認真看待…）。前半段 was 為過去式，reminded 必須配合使用過去式。
+          </div>
+        </div>
+
+        <!-- 38 題 -->
+        <div class="bg-white border-2 border-pink-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-pink-600 text-white font-black rounded-lg text-sm">第 38 題</span>
+            <p class="text-lg font-bold text-slate-800">雖然那次失敗讓我覺得很丟臉，但我學到要確保不再讓我的隊友失望。[cite: 1]</p>
+          </div>
+          <div class="p-4 bg-pink-50/50 rounded-xl text-lg font-mono text-slate-800 border border-pink-100 leading-loose">
+            Although that failure made me feel embarrassed, it taught me to 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[1]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[2]</span> that I would never 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[3]</span> my teammates 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[4]</span> again.[cite: 1]
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [1]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">make</span>
+              <span class="text-xs text-slate-500">teach sb to + 原形</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [2]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">sure</span>
+              <span class="text-xs text-slate-500">make sure 確保</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [3]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">let</span>
+              <span class="text-xs text-slate-500">助動詞 would 後接原形</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [4]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">down</span>
+              <span class="text-xs text-slate-500">let sb down 使…失望</span>
+            </div>
+          </div>
+          <div class="text-sm bg-pink-100/50 p-2.5 rounded-lg text-pink-950 font-medium">
+            [句型公式] make sure that + S + V（確保…）；let sb down（讓某人失望）。
+          </div>
+        </div>
+
+        <!-- 39 題 -->
+        <div class="bg-white border-2 border-pink-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-pink-600 text-white font-black rounded-lg text-sm">第 39 題</span>
+            <p class="text-lg font-bold text-slate-800">這道菜聞起來很美味，而且吃起來就像我祖母做的料理。[cite: 1]</p>
+          </div>
+          <div class="p-4 bg-pink-50/50 rounded-xl text-lg font-mono text-slate-800 border border-pink-100 leading-loose">
+            The dish 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[1]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[2]</span>, and it 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[3]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[4]</span> the food my grandmother makes.[cite: 1]
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [1]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">smells</span>
+              <span class="text-xs text-slate-500">主詞單數 dish 用現在簡單式</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [2]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">delicious</span>
+              <span class="text-xs text-slate-500">連綴動詞 + adj.</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [3]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">tastes</span>
+              <span class="text-xs text-slate-500">主詞 it 動詞加 s</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [4]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">like</span>
+              <span class="text-xs text-slate-500">taste like + 名詞</span>
+            </div>
+          </div>
+          <div class="text-sm bg-pink-100/50 p-2.5 rounded-lg text-pink-950 font-medium">
+            [句型公式] smell + adj.（聞起來…）；taste like + N（嚐起來像…）。
+          </div>
+        </div>
+
+        <!-- 40 題 -->
+        <div class="bg-white border-2 border-pink-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-pink-600 text-white font-black rounded-lg text-sm">第 40 題</span>
+            <p class="text-lg font-bold text-slate-800">對學生而言，上課時專心而不是一直查看手機訊息很重要。[cite: 1]</p>
+          </div>
+          <div class="p-4 bg-pink-50/50 rounded-xl text-lg font-mono text-slate-800 border border-pink-100 leading-loose">
+            It is 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[1]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[2]</span> students to 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[3]</span> in class instead of (g)
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[4]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[5]</span> their phone messages again and again.[cite: 1]
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [1]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">important</span>
+              <span class="text-xs text-slate-500">形容詞 (重要的)</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [2]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">for</span>
+              <span class="text-xs text-slate-500">for + 對象</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [3]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">focus</span>
+              <span class="text-xs text-slate-500">to + 原形動詞</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [4]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">glancing</span>
+              <span class="text-xs text-slate-500">instead of + V-ing</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [5]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">at</span>
+              <span class="text-xs text-slate-500">glance at 瞥一眼</span>
+            </div>
+          </div>
+          <div class="text-sm bg-pink-100/50 p-2.5 rounded-lg text-pink-950 font-medium">
+            [句型公式] It is + adj. + for sb to V（某人做某事是…的）；instead of + V-ing（而不是…）；glance at（看一眼）。
+          </div>
+        </div>
+
+        <!-- 41 題 -->
+        <div class="bg-white border-2 border-pink-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-pink-600 text-white font-black rounded-lg text-sm">第 41 題</span>
+            <p class="text-lg font-bold text-slate-800">自從上高中以來，Amy 已經和許多新同學建立了良好的關係。[cite: 1]</p>
+          </div>
+          <div class="p-4 bg-pink-50/50 rounded-xl text-lg font-mono text-slate-800 border border-pink-100 leading-loose">
+            Since Amy entered high school, she 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[1]</span> (b)
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[2]</span> good 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[3]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[4]</span> many new classmates.[cite: 1]
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [1]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">has</span>
+              <span class="text-xs text-slate-500">現在完成式助動詞</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [2]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">built</span>
+              <span class="text-xs text-slate-500">build 過去分詞 p.p.</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [3]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">relationships</span>
+              <span class="text-xs text-slate-500">可數名詞複數 (關係)</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [4]</span>
+              <span class="text-2xl md:text-3xl font-black text-pink-600 font-mono block my-1">with</span>
+              <span class="text-xs text-slate-500">與…建立關係</span>
+            </div>
+          </div>
+          <div class="text-sm bg-pink-100/50 p-2.5 rounded-lg text-pink-950 font-medium">
+            [句型公式] Since + S + 過去式V, S + has/have + p.p.；build a relationship with...（與…建立關係）。
+          </div>
+        </div>
+
+        <!-- 42 題 -->
+        <div class="bg-white border-2 border-pink-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-pink-600 text-white font-black rounded-lg text-sm">第 42 題</span>
+            <p class="text-lg font-bold text-slate-800">我們已經是五年的朋友了；事實上，我們幾乎每個週末都會一起出去。[cite: 1]</p>
+          </div>
+          <div class="p-4 bg-pink-50/50 rounded-xl text-lg font-mono text-slate-800 border border-pink-100 leading-loose">
+            We 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[1]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[2]</span> friends for five years; 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[3]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[4]</span>, we (h)
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[5]</span> 
+            <span class="px-2 py-0.5 border-b-2 border-pink-500 font-black text-pink-700">[6]</span> almost every weekend.[cite: 1]
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-6 gap-2">
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [1]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">have</span>
+              <span class="text-xs text-slate-500">現在完成式助動詞</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [2]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">been</span>
+              <span class="text-xs text-slate-500">be動詞 p.p.</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [3]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">in</span>
+              <span class="text-xs text-slate-500">in fact 首字大寫</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [4]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">fact</span>
+              <span class="text-xs text-slate-500">事實上</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [5]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">hang</span>
+              <span class="text-xs text-slate-500">原形動詞 hang</span>
+            </div>
+            <div class="bg-white border-2 border-pink-200 rounded-xl p-3 shadow-sm">
+              <span class="text-xs text-pink-500 font-black">空格 [6]</span>
+              <span class="text-xl md:text-2xl font-black text-pink-600 font-mono block my-1">out</span>
+              <span class="text-xs text-slate-500">hang out 聚會</span>
+            </div>
+          </div>
+          <div class="text-sm bg-pink-100/50 p-2.5 rounded-lg text-pink-950 font-medium">
+            [句型公式] for five years 搭配現在完成式 have been；in fact（事實上）；hang out（外出聚會、閒晃）。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== JavaScript 核心邏輯 ==================== -->
+  <script>
+    let currentMode = 'teach';
+    let currentFontSize = 'fs-standard';
+
+    const blankOptions = [
+      { key: 'A', text: '(A) presentation' },
+      { key: 'B', text: '(B) attention' },
+      { key: 'C', text: '(C) embarrassed' },
+      { key: 'D', text: '(D) reflected' },
+      { key: 'E', text: '(E) let down' },
+      { key: 'F', text: '(F) throughout' },
+      { key: 'G', text: '(G) accidentally' },
+      { key: 'H', text: '(H) ignored' },
+      { key: 'I', text: '(I) in person' },
+      { key: 'J', text: '(J) refreshing' }
+    ];
+
+    // 精確像素跳轉函數（解決所有電子白板與 iframe 錨點失效問題）
+    function jumpToVocab(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+
+      const header = document.getElementById('main-header');
+      const headerOffset = header ? header.offsetHeight : 60;
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 16;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+
+      // 觸發醒目光暈聚焦動畫
+      target.classList.add('highlight-focus');
+      setTimeout(() => {
+        target.classList.remove('highlight-focus');
+      }, 1500);
+    }
+
+    // 渲染文意選填空格
+    function renderBlankSlots() {
+      const slots = document.querySelectorAll('.blank-slot');
+      slots.forEach(slot => {
+        const qNum = slot.getAttribute('data-q');
+        const correctAns = slot.getAttribute('data-ans');
+        const word = slot.getAttribute('data-word');
+
+        if (currentMode === 'teach') {
+          slot.innerHTML = `
+            <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-200 text-slate-900 font-black font-mono border border-slate-400">
+              <strong class="text-slate-500 mr-1">(${qNum})</strong> ${word} 
+              <span class="ml-1 text-xs px-1.5 py-0.2 bg-slate-700 text-white rounded font-bold">[${correctAns}]</span>
+            </span>
+          `;
+        } else {
+          let optionsHtml = `<option value="">(${qNum}) 選擇答案 ▼</option>`;
+          blankOptions.forEach(opt => {
+            optionsHtml += `<option value="${opt.key}">${opt.text}</option>`;
+          });
+
+          slot.innerHTML = `
+            <select onchange="verifySelect(this, '${correctAns}')" class="blank-select text-base md:text-lg font-bold font-mono py-1 px-2 rounded-xl border-2 border-slate-400 bg-white shadow-sm focus:ring-2 focus:ring-amber-500 outline-none transition">
+              ${optionsHtml}
+            </select>
+          `;
+        }
+      });
+    }
+
+    // 檢查下拉選單作答
+    function verifySelect(selectEl, correctKey) {
+      const chosen = selectEl.value;
+      if (!chosen) {
+        selectEl.className = "blank-select text-base md:text-lg font-bold font-mono py-1 px-2 rounded-xl border-2 border-slate-400 bg-white shadow-sm";
+        return;
+      }
+      if (chosen === correctKey) {
+        selectEl.className = "blank-select text-base md:text-lg font-bold font-mono py-1 px-2 rounded-xl border-2 border-emerald-500 bg-emerald-100 text-emerald-900 shadow-md ring-2 ring-emerald-300";
+      } else {
+        selectEl.className = "blank-select text-base md:text-lg font-bold font-mono py-1 px-2 rounded-xl border-2 border-rose-500 bg-rose-100 text-rose-900 shadow-md ring-2 ring-rose-300 animate-pulse";
+      }
+    }
+
+    // 模式切換 (精讀講授 / 投影自測)
+    function setAppMode(mode) {
+      currentMode = mode;
+      const teachBtn = document.getElementById('btn-mode-teach');
+      const quizBtn = document.getElementById('btn-mode-quiz');
+      const badge = document.getElementById('blank-score-badge');
+
+      if (mode === 'teach') {
+        teachBtn.className = "px-3 py-1 rounded-lg font-bold bg-emerald-600 text-white shadow-sm flex items-center space-x-1";
+        quizBtn.className = "px-3 py-1 rounded-lg font-bold bg-slate-200 text-slate-700 hover:bg-amber-500 hover:text-white transition flex items-center space-x-1";
+        if(badge) badge.classList.add('hidden');
+      } else {
+        quizBtn.className = "px-3 py-1 rounded-lg font-bold bg-amber-500 text-slate-950 shadow-sm flex items-center space-x-1 ring-2 ring-amber-400";
+        teachBtn.className = "px-3 py-1 rounded-lg font-bold bg-slate-200 text-slate-700 hover:bg-emerald-600 hover:text-white transition flex items-center space-x-1";
+        if(badge) badge.classList.remove('hidden');
+      }
+
+      renderBlankSlots();
+    }
+
+    // 字級切換
+    function setFontSize(sizeClass) {
+      const root = document.getElementById('app-root');
+      root.classList.remove('fs-standard', 'fs-large', 'fs-xlarge');
+      root.classList.add(sizeClass);
+      currentFontSize = sizeClass;
+    }
+
+    // 大題分頁切換
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      const activePanel = document.getElementById(tabId);
+      if (activePanel) activePanel.classList.remove('hidden');
+
+      const tabMap = {
+        'tab-vocab': { id: 'tab-btn-vocab', activeBg: 'bg-red-600 text-white', defaultBg: 'bg-slate-200 text-slate-700' },
+        'tab-cloze1': { id: 'tab-btn-cloze1', activeBg: 'bg-amber-500 text-slate-900', defaultBg: 'bg-slate-200 text-slate-700' },
+        'tab-cloze2': { id: 'tab-btn-cloze2', activeBg: 'bg-blue-600 text-white', defaultBg: 'bg-slate-200 text-slate-700' },
+        'tab-blank': { id: 'tab-btn-blank', activeBg: 'bg-slate-700 text-white', defaultBg: 'bg-slate-200 text-slate-700' },
+        'tab-trans': { id: 'tab-btn-trans', activeBg: 'bg-pink-600 text-white', defaultBg: 'bg-slate-200 text-slate-700' }
+      };
+
+      Object.keys(tabMap).forEach(key => {
+        const item = tabMap[key];
+        const btn = document.getElementById(item.id);
+        if (key === tabId) {
+          btn.className = `tab-btn px-3 py-1 rounded-md font-bold text-xs md:text-sm whitespace-nowrap shadow-sm ${item.activeBg}`;
+        } else {
+          btn.className = `tab-btn px-3 py-1 rounded-md font-bold text-xs md:text-sm whitespace-nowrap hover:opacity-90 ${item.defaultBg}`;
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 英中對照切換
+    function toggleArticleLang(section) {
+      const enBox = document.getElementById(`${section}-en-box`);
+      const zhBox = document.getElementById(`${section}-zh-box`);
+      const btnText = document.getElementById(`${section}-lang-btn-text`);
+
+      if (zhBox.classList.contains('hidden')) {
+        zhBox.classList.remove('hidden');
+        enBox.classList.add('hidden');
+        btnText.innerText = "切換回英文原文";
+      } else {
+        zhBox.classList.add('hidden');
+        enBox.classList.remove('hidden');
+        btnText.innerText = "切換中文翻譯";
+      }
+    }
+
+    // 克漏字點選課文跳轉至題卡
+    function scrollToCard(cardId) {
+      const el = document.getElementById(cardId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-4', 'ring-amber-400');
+        setTimeout(() => el.classList.remove('ring-4', 'ring-amber-400'), 1500);
+      }
+    }
+
+    // 詳解全部收合或展開
+    let detailsOpened = true;
+    function toggleAllDetails() {
+      detailsOpened = !detailsOpened;
+      document.querySelectorAll('details').forEach(d => {
+        d.open = detailsOpened;
+      });
+    }
+
+    // Web Speech API 語音朗讀
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        alert("瀏覽器不支援語音合成功能。");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const clean = text.replace(/\[\d+\]/g, '').replace(/_+/g, '');
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = 'en-US';
+      utter.rate = 0.9;
+      window.speechSynthesis.speak(utter);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderBlankSlots();
+    });
+  </script>
+</body>
+</html>
